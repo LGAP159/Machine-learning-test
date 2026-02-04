@@ -1,0 +1,58 @@
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+import pandas as pd
+import xgboost as xgb
+# Importe a classe LabelEncoder
+from sklearn.preprocessing import LabelEncoder
+
+
+# Exemplo de dados
+dados = {
+    'temperatura': [30, 25, 28, 18, 20, 22, 24, 28, 26, 30],
+    'umidade': [85, 90, 78, 65, 75, 70, 80, 75, 80, 70],
+    'jogar_tenis': ['Não', 'Não', 'Sim', 'Sim', 'Sim', 'Sim', 'Não', 'Sim', 'Sim', 'Não']
+}
+
+df = pd.DataFrame(dados)
+print(df)
+
+# Separando as variáveis de entrada (temperatura e umidade) e o alvo (jogar_tenis)
+X = df[['temperatura', 'umidade']]
+y = df['jogar_tenis']
+
+# Convertendo as classes para números
+# Agora LabelEncoder está definido e pronto para uso
+label_encoder = LabelEncoder()
+y_encoded = label_encoder.fit_transform(y)
+
+# Dividindo o conjunto de dados em treinamento e teste
+X_train, X_test, y_train, y_test = train_test_split(X, y_encoded, test_size=0.4, random_state=42)
+
+# Criando e treinando o modelo Naive Bayes
+modelo_nb = GaussianNB()
+modelo_nb.fit(X_train, y_train)
+
+# Fazendo previsões com o modelo Naive Bayes
+y_pred_nb = modelo_nb.predict(X_test)
+
+# Calculando a acurácia do modelo Naive Bayes
+acuracia_nb = accuracy_score(y_test, y_pred_nb)
+print('Acurácia do Naive Bayes:', acuracia_nb)
+
+# Criando e treinando o modelo XGBoost
+modelo_xgb = xgb.XGBClassifier(use_label_encoder=False, eval_metric='logloss')
+modelo_xgb.fit(X_train, y_train)
+
+# Fazendo previsões com o modelo XGBoost
+y_pred_xgb = modelo_xgb.predict(X_test)
+
+# Calculando a acurácia do modelo XGBoost
+acuracia_xgb = accuracy_score(y_test, y_pred_xgb)
+print('Acurácia do XGBoost:', acuracia_xgb)
+
+# Comparação dos resultados
+if acuracia_xgb > acuracia_nb:
+    print("O modelo XGBoost teve melhor desempenho.")
+else:
+    print("O modelo Naive Bayes teve melhor desempenho.")
